@@ -1,0 +1,115 @@
+
+{% extends "base.html" %}
+
+
+{% block head %}
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.0.1/dist/leaflet.css" />
+{% endblock %}
+
+{% block body %}
+
+<div class="top-bar">
+  <div><h4 id="text-noti">Оберіть точку відправлення</h4></div>
+</div>
+
+<div class="map-container"><div id="map">
+
+</div></div>
+<!-- leaflet -->
+<script src="https://unpkg.com/leaflet@1.0.1/dist/leaflet.js"></script>
+<!-- Main tangram library -->
+<script src="https://mapzen.com/tangram/0.10/tangram.min.js"></script>
+
+<!-- Demo setup -->
+<script>
+var crimed_roads = {{ crime }}
+var points = [0, 0, 0];
+text_header = ["Оберіть точку відправлення", "Оберіть точку прибуття", "Очікуйте, ми підбираємо найкращий маршрут для Вас", "Ваш найшвидший маршрут"]
+function SetPoint(selection, npoints) {
+    if (npoints[0] >= 2) {
+      return npoints;
+    }
+    if (selection.feature) {
+      data = selection.feature.properties
+      // console.log('Click!', data["id"],data["name"], selection);
+      npoints[0]++
+      text = npoints[0] == 1 ? "Точка відправлення" : "Точка прибуття"
+
+      $("#text-noti").html(text_header[npoints[0]]);
+      npoints[npoints[0]] = [selection.feature.properties.id, selection.leaflet_event.latlng]
+      L.marker(selection.leaflet_event.latlng).addTo(map)
+        .bindPopup(text)
+        .openPopup()
+
+    }
+
+    return npoints;
+  }
+var map = L.map('map');
+crime_geo = []
+var myRenderer = L.canvas({ padding: 0.5 });
+
+for (road in crimed_roads) {
+  for (i=0; i < crimed_roads[road][0].length; i++) {
+    crimed_roads[road][0][i].reverse()
+  }
+//  crime_geo.push(crimed_roads[road][0])
+ var ff = L.polyline(crimed_roads[road][0], {color: "rgba(255,0,0,"+ Math.sqrt(crimed_roads[road][1]/{{maxcrime}}) +")", weight:3, renderer: myRenderer}).addTo(map);
+
+}
+  // var ff = L.polyline(crime_geo, {color: "red", weight:10, renderer: myRenderer}).addTo(map);
+var layer = Tangram.leafletLayer({
+    scene: "{{ url_for('static', filename='scene.yaml') }}",
+    attribution: '<a href="https://mapzen.com/tangram" target="_blank">Tangram</a> | &copy; OSM contributors | <a href="https://mapzen.com/" target="_blank">Mapzen</a>',
+    events: {
+       click: function(selection) {
+         points = SetPoint(selection, points);
+         if (points[0] == 2) {
+           // console.log(points)
+           request = $.ajax({
+            type:"GET",
+            url: "{{ url_for("build_way")}}",
+            data: { id1 : points[1][0], lat1 : points[1][1]["lat"], lng1 : points[1][1]["lng"], id2 : points[2][0], lat2 : points[2][1]["lat"], lng2 : points[2][1]["lng"] },
+            success: function(e){
+              var latlngs = [
+              [49.818804132, 24.0591888517],
+              [49.8187043873, 24.0590629556]
+              ]
+
+              latlngs = JSON.parse(e);
+              console.log(latlngs[0][0] == latlngs[1][0], latlngs)
+              var polyline = L.polyline(latlngs[1][0], {color: 'rgb(255,255,0)', weight:5}).addTo(map);
+              var polyline1 = L.polyline(latlngs[0][0], {color: 'rgb(0,255,0)', weight:5}).addTo(map);
+              $("#text-noti").html(text_header[3]);
+              // zoom the map to the polyline
+            //  map.fitBounds(polyline.getBounds());
+            }
+          });
+
+
+
+         }
+       }
+    }
+});
+layer.addTo(map);
+
+map.setView([49.8193738,24.0298474], 20);
+</script>
+
+{% endblock %}
+
+<!--
+var latlngs = [
+    [ 49.820365261421131, 24.027337284403782],
+    [ 49.819732930645692, 24.02879992650756],
+    [ 49.819601167127814, 24.029786979425268],
+    [ 49.819446856290398, 24.030150754022998],
+    [ 49.819154746964813, 24.030772355962341],
+    [ 49.81897403313237, 24.031167897973088]
+];
+var polyline = L.polyline(latlngs, {color: 'red'}).addTo(map);
+// zoom the map to the polyline
+map.fitBounds(polyline.getBounds());
+
+-->
