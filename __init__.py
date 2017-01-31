@@ -5,6 +5,7 @@ import json
 import math
 from shortest_way import shortest_way
 from crimes import crimes
+from crimes_pieces import crimes_pieces
 from lviv_ukraine_roads import roads_data
 
 app = Flask(__name__)
@@ -64,26 +65,32 @@ def build_way():
     lst2 = break_line(lat2, lng2, request.args["id2"])
     print("\n\n",lst1,"\n\n",lst2,"\n\n")
     try:
-        city.city[(lat1,lng1)].append((my_reversed(lst1[0]),  geocalc(lat1,lng1,lst1[0][0],lst1[0][1]) ,0))
-        city.city[(lat1,lng1)].append((my_reversed(lst1[2]), geocalc(lat1,lng1,lst1[2][0],lst1[2][1]),0))
+        city.city[(lat1,lng1)].append((my_reversed(lst1[0]),  geocalc(lat1,lng1,lst1[0][0],lst1[0][1]) ,request.args["id1"]))
+        city.city[(lat1,lng1)].append((my_reversed(lst1[2]), geocalc(lat1,lng1,lst1[2][0],lst1[2][1]),request.args["id1"]))
     except:
-        city.city[(lat1,lng1)] = [(my_reversed(lst1[0]),  geocalc(lat1,lng1,lst1[0][0],lst1[0][1]) ,0),
-                                  (my_reversed(lst1[2]), geocalc(lat1,lng1,lst1[2][0],lst1[2][1]),0)]
+        city.city[(lat1,lng1)] = [(my_reversed(lst1[0]),  geocalc(lat1,lng1,lst1[0][0],lst1[0][1]) ,request.args["id1"]),
+                                  (my_reversed(lst1[2]), geocalc(lat1,lng1,lst1[2][0],lst1[2][1]),request.args["id1"])]
 
     try:
-        city.city[(lat2,lng2)].append((my_reversed(lst2[0]), geocalc(lat2,lng2,lst2[0][0],lst2[0][1]) , 0))
-        city.city[(lat2,lng2)].append((my_reversed(lst2[2]), geocalc(lat2,lng2,lst2[2][0],lst2[2][1]) , 0))
+        city.city[(lat2,lng2)].append((my_reversed(lst2[0]), geocalc(lat2,lng2,lst2[0][0],lst2[0][1]) , request.args["id2"]))
+        city.city[(lat2,lng2)].append((my_reversed(lst2[2]), geocalc(lat2,lng2,lst2[2][0],lst2[2][1]) , request.args["id2"]))
     except:
-        city.city[(lat2,lng2)] = [(my_reversed(lst2[0]), geocalc(lat2,lng2,lst2[0][0],lst2[0][1]) , 0),
-                                  (my_reversed(lst2[2]), geocalc(lat2,lng2,lst2[2][0],lst2[2][1]) , 0)]
+        city.city[(lat2,lng2)] = [(my_reversed(lst2[0]), geocalc(lat2,lng2,lst2[0][0],lst2[0][1]) , request.args["id2"]),
+                                  (my_reversed(lst2[2]), geocalc(lat2,lng2,lst2[2][0],lst2[2][1]) , request.args["id2"])]
 
-    city.city[tuple(my_reversed(lst1[0]))].append((tuple(my_reversed(lst1[1])), geocalc(lat1,lng1,lst1[0][0],lst1[0][1]) , 0))
-    city.city[tuple(my_reversed(lst1[2]))].append((tuple(my_reversed(lst1[1])), geocalc(lat1,lng1,lst1[2][0],lst1[2][1]) , 0))
+    city.city[tuple(my_reversed(lst1[0]))].append((tuple(my_reversed(lst1[1])), geocalc(lat1,lng1,lst1[0][0],lst1[0][1]) , request.args["id1"]))
+    city.city[tuple(my_reversed(lst1[2]))].append((tuple(my_reversed(lst1[1])), geocalc(lat1,lng1,lst1[2][0],lst1[2][1]) , request.args["id1"]))
 
-    city.city[tuple(my_reversed(lst2[0]))].append((tuple(my_reversed(lst2[1])), geocalc(lat2,lng2,lst2[0][0],lst2[0][1]) , 0))
-    city.city[tuple(my_reversed(lst2[2]))].append((tuple(my_reversed(lst2[1])), geocalc(lat2,lng2,lst2[2][0],lst2[2][1]) , 0))
-    res = shortest_way(city.city, (lat1, lng1), (lat2, lng2), True)
-    res1 = shortest_way(city.city, (lat1, lng1), (lat2, lng2), False)
+    city.city[tuple(my_reversed(lst2[0]))].append((tuple(my_reversed(lst2[1])), geocalc(lat2,lng2,lst2[0][0],lst2[0][1]) , request.args["id2"]))
+    city.city[tuple(my_reversed(lst2[2]))].append((tuple(my_reversed(lst2[1])), geocalc(lat2,lng2,lst2[2][0],lst2[2][1]) , request.args["id2"]))
+    
+    shortest = shortest_way(city.city, (lat1, lng1), (lat2, lng2), 0, crimes_pieces, crimes)
+    safest = shortest_way(city.city, (lat1, lng1), (lat2, lng2), 1, crimes_pieces, crimes)
+    optimal = shortest_way(city.city, (lat1, lng1), (lat2, lng2), 2, crimes_pieces, crimes)
+
+    # res = shortest_way(city.city, (lat1, lng1), (lat2, lng2), 1, crimes_pieces, crimes)
+    # res1 = shortest_way(city.city, (lat1, lng1), (lat2, lng2), 0, crimes_pieces, crimes)
+
     return json.dumps([res, res1])
     #return(shortest_way(city.city, (lat1, lng1), (lat2, lng2)))
     #return json.dumps(roads_data["features"][int(request.args["id1"])]["coordinates"])
