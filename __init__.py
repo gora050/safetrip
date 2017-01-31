@@ -64,26 +64,26 @@ def build_way():
     lst2 = break_line(lat2, lng2, request.args["id2"])
     print("\n\n",lst1,"\n\n",lst2,"\n\n")
     try:
-        city.city[(lat1,lng1)].append((my_reversed(lst1[0]),  geocalc(lat1,lng1,lst1[0][0],lst1[0][1]) ,request.args["id1"]))
-        city.city[(lat1,lng1)].append((my_reversed(lst1[2]), geocalc(lat1,lng1,lst1[2][0],lst1[2][1]),request.args["id1"]))
+        city.city[(lat1,lng1)].append((my_reversed(lst1[0]),  geocalc(lat1,lng1,lst1[0][0],lst1[0][1]) ,0))
+        city.city[(lat1,lng1)].append((my_reversed(lst1[2]), geocalc(lat1,lng1,lst1[2][0],lst1[2][1]),0))
     except:
-        city.city[(lat1,lng1)] = [(my_reversed(lst1[0]),  geocalc(lat1,lng1,lst1[0][0],lst1[0][1]) ,request.args["id1"]),
-                                  (my_reversed(lst1[2]), geocalc(lat1,lng1,lst1[2][0],lst1[2][1]),request.args["id1"])]
+        city.city[(lat1,lng1)] = [(my_reversed(lst1[0]),  geocalc(lat1,lng1,lst1[0][0],lst1[0][1]) ,0),
+                                  (my_reversed(lst1[2]), geocalc(lat1,lng1,lst1[2][0],lst1[2][1]),0)]
 
     try:
-        city.city[(lat2,lng2)].append((my_reversed(lst2[0]), geocalc(lat2,lng2,lst2[0][0],lst2[0][1]) , request.args["id2"]))
-        city.city[(lat2,lng2)].append((my_reversed(lst2[2]), geocalc(lat2,lng2,lst2[2][0],lst2[2][1]) , request.args["id2"]))
+        city.city[(lat2,lng2)].append((my_reversed(lst2[0]), geocalc(lat2,lng2,lst2[0][0],lst2[0][1]) , 0))
+        city.city[(lat2,lng2)].append((my_reversed(lst2[2]), geocalc(lat2,lng2,lst2[2][0],lst2[2][1]) , 0))
     except:
-        city.city[(lat2,lng2)] = [(my_reversed(lst2[0]), geocalc(lat2,lng2,lst2[0][0],lst2[0][1]) , request.args["id2"]),
-                                  (my_reversed(lst2[2]), geocalc(lat2,lng2,lst2[2][0],lst2[2][1]) , request.args["id2"])]
+        city.city[(lat2,lng2)] = [(my_reversed(lst2[0]), geocalc(lat2,lng2,lst2[0][0],lst2[0][1]) , 0),
+                                  (my_reversed(lst2[2]), geocalc(lat2,lng2,lst2[2][0],lst2[2][1]) , 0)]
 
-    city.city[tuple(my_reversed(lst1[0]))].append((tuple(my_reversed(lst1[1])), geocalc(lat1,lng1,lst1[0][0],lst1[0][1]) , request.args["id1"]))
-    city.city[tuple(my_reversed(lst1[2]))].append((tuple(my_reversed(lst1[1])), geocalc(lat1,lng1,lst1[2][0],lst1[2][1]) , request.args["id1"]))
+    city.city[tuple(my_reversed(lst1[0]))].append((tuple(my_reversed(lst1[1])), geocalc(lat1,lng1,lst1[0][0],lst1[0][1]) , 0))
+    city.city[tuple(my_reversed(lst1[2]))].append((tuple(my_reversed(lst1[1])), geocalc(lat1,lng1,lst1[2][0],lst1[2][1]) , 0))
 
-    city.city[tuple(my_reversed(lst2[0]))].append((tuple(my_reversed(lst2[1])), geocalc(lat2,lng2,lst2[0][0],lst2[0][1]) , request.args["id2"]))
-    city.city[tuple(my_reversed(lst2[2]))].append((tuple(my_reversed(lst2[1])), geocalc(lat2,lng2,lst2[2][0],lst2[2][1]) , request.args["id2"]))
-    res = shortest_way(city.city, (lat1, lng1), (lat2, lng2), True, crimes)
-    res1 = shortest_way(city.city, (lat1, lng1), (lat2, lng2), False, crimes)
+    city.city[tuple(my_reversed(lst2[0]))].append((tuple(my_reversed(lst2[1])), geocalc(lat2,lng2,lst2[0][0],lst2[0][1]) , 0))
+    city.city[tuple(my_reversed(lst2[2]))].append((tuple(my_reversed(lst2[1])), geocalc(lat2,lng2,lst2[2][0],lst2[2][1]) , 0))
+    res = shortest_way(city.city, (lat1, lng1), (lat2, lng2), True)
+    res1 = shortest_way(city.city, (lat1, lng1), (lat2, lng2), False)
     return json.dumps([res, res1])
     #return(shortest_way(city.city, (lat1, lng1), (lat2, lng2)))
     #return json.dumps(roads_data["features"][int(request.args["id1"])]["coordinates"])
