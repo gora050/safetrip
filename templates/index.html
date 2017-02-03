@@ -7,14 +7,48 @@
 {% endblock %}
 
 {% block body %}
+<!-- The drawer is always open in large screens. The header is always shown,
+  even in small screens. -->
+<div class="mdl-layout mdl-js-layout mdl-layout--fixed-drawer
+            mdl-layout--fixed-header">
+  <header class="mdl-layout__header">
+    <div class="mdl-layout__header-row">
 
-<div class="top-bar">
-  <div><h4 id="text-noti">Оберіть точку відправлення</h4></div>
+      <div class="mdl-layout-spacer"></div>
+      <div class="mdl-textfield mdl-js-textfield mdl-textfield--expandable
+                  mdl-textfield--floating-label mdl-textfield--align-right">
+
+        <label class="mdl-button mdl-js-button mdl-button--icon"
+               for="fixed-header-drawer-exp">
+        </label>
+        <div class="mdl-textfield__expandable-holder">
+          <input class="mdl-textfield__input" type="text" name="sample"
+                 id="fixed-header-drawer-exp">
+        </div>
+      </div>
+    </div>
+  </header>
+  <div class="mdl-layout__drawer">
+    <span class="mdl-layout-title" id="text-noti">SafeTrip</span>
+    <nav class="mdl-navigation">
+      <ol>
+      </ol>
+      <button id="gen_trip" onclick="genWay()" class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect">Прокласти маршрут</button>
+<span class="trip-info">Оберіть пункт відправлення і пункти призначення на мапі</span>
+    </nav>
+  </div>
+  <main class="mdl-layout__content">
+    <div class="page-content">
+
+      <div class="map-container"><div id="map">
+
+      </div></div>
+
+    </div>
+  </main>
 </div>
 
-<div class="map-container"><div id="map">
 
-</div></div>
 <!-- leaflet -->
 <script src="https://unpkg.com/leaflet@1.0.1/dist/leaflet.js"></script>
 <!-- Main tangram library -->
@@ -22,31 +56,44 @@
 
 <!-- Demo setup -->
 <script>
-var crimed_roads = {{ crime }}
-var points = [0, 0, 0];
-text_header = ["Оберіть точку відправлення", "Оберіть точку прибуття", "Очікуйте, ми підбираємо найкращий маршрут для Вас", "Ваш найшвидший маршрут"]
-function SetPoint(selection, npoints) {
-    if (npoints[0] >= 2) {
-      return npoints;
+
+  $('.mdl-navigation > ol').on('click', 'li', function(e){
+      if (e.target.className =="material-icons") {
+        points[$(this).attr("data-point-num")][2].remove()
+        points[$(this).attr("data-point-num")] = -1
+        $(this).remove();
+        blue.clearLayers()
+        green.clearLayers()
+        yellow.clearLayers()
     }
+});
+
+var crimed_roads = {{ crime }}
+var points = [0];
+text_header = ["Оберіть точку відправлення", "Оберіть точку прибуття", "Очікуйте, ми підбираємо найкращий маршрут для Вас", "Ваш найшвидший маршрут"]
+
+function SetPoint(selection, npoints) {
     if (selection.feature) {
       data = selection.feature.properties
-      // console.log('Click!', data["id"],data["name"], selection);
+      console.log('Click!', data["id"],data["name"], selection);
       npoints[0]++
-      text = npoints[0] == 1 ? "Точка відправлення" : "Точка прибуття"
-
-      $("#text-noti").html(text_header[npoints[0]]);
-      npoints[npoints[0]] = [selection.feature.properties.id, selection.leaflet_event.latlng]
-      L.marker(selection.leaflet_event.latlng).addTo(map)
-        .bindPopup(text)
-        .openPopup()
-
+      text = (data["name"] == undefined ? "Невідома" : data["name"]  )
+      pointListItem  = $('<li class="mdl-navigation__link" data-point-num="'+npoints[0]+'"><span>'+text+
+        '</span><button class="mdl-button mdl-js-button mdl-button--icon"><i class="material-icons">close</i></button></li>');
+      $(".mdl-navigation > ol").eq(0).append(pointListItem);
+      //$("#text-noti").html("Оберіть точку #"+(npoints[0]+1));
+      npoints[npoints[0]] = [selection.feature.properties.id, selection.leaflet_event.latlng,L.marker(selection.leaflet_event.latlng)]
+      npoints[npoints[0]][2].addTo(map)
+      .bindPopup(text)
+      .openPopup()
+      console.log(selection.feature.properties.id, selection.feature)
     }
 
     return npoints;
   }
 var map = L.map('map');
 crime_geo = []
+crime_lay = []
 var myRenderer = L.canvas({ padding: 0.5 });
 
 for (road in crimed_roads) {
@@ -54,8 +101,8 @@ for (road in crimed_roads) {
     crimed_roads[road][0][i].reverse()
   }
 //  crime_geo.push(crimed_roads[road][0])
- var ff = L.polyline(crimed_roads[road][0], {color: "rgba(255,0,0,"+ Math.sqrt(crimed_roads[road][1]/{{maxcrime}}) +")", weight:3, renderer: myRenderer}).addTo(map);
-
+ var ff = L.polyline(crimed_roads[road][0], {color: "rgba(255,0,0,"+ Math.sqrt(crimed_roads[road][1]/{{maxcrime}}) +")", weight:3, renderer: myRenderer})
+crime_lay.push(ff)
 }
   // var ff = L.polyline(crime_geo, {color: "red", weight:10, renderer: myRenderer}).addTo(map);
 var layer = Tangram.leafletLayer({
@@ -64,34 +111,79 @@ var layer = Tangram.leafletLayer({
     events: {
        click: function(selection) {
          points = SetPoint(selection, points);
-         if (points[0] == 2) {
-           // console.log(points)
-           request = $.ajax({
-            type:"GET",
-            url: "{{ url_for("build_way")}}",
-            data: { id1 : points[1][0], lat1 : points[1][1]["lat"], lng1 : points[1][1]["lng"], id2 : points[2][0], lat2 : points[2][1]["lat"], lng2 : points[2][1]["lng"] },
-            success: function(e){
-              var latlngs = [
-              [49.818804132, 24.0591888517],
-              [49.8187043873, 24.0590629556]
-              ]
 
-              latlngs = JSON.parse(e);
-              console.log(latlngs[0][0] == latlngs[1][0], latlngs)
-              var polyline = L.polyline(latlngs[1][0], {color: 'rgb(255,255,0)', weight:5}).addTo(map);
-              var polyline1 = L.polyline(latlngs[0][0], {color: 'rgb(0,255,0)', weight:5}).addTo(map);
-              $("#text-noti").html(text_header[3]);
-              // zoom the map to the polyline
-            //  map.fitBounds(polyline.getBounds());
-            }
-          });
-
-
-
-         }
        }
     }
 });
+var baseLayers = {
+
+};
+blue = L.layerGroup([]).addTo(map);
+green = L.layerGroup([]).addTo(map);
+yellow = L.layerGroup([]).addTo(map);
+
+crimeLayer = L.layerGroup(crime_lay);
+var overlays = {
+  "Рівень кримінальності": crimeLayer,
+  "Найшвидший маршрут":yellow,
+  "Найбезпечніший маршрут v1": blue,
+  "Найбезпечніший маршрут v2": green
+};
+L.control.layers(baseLayers, overlays).addTo(map);
+function genWay() {
+  blue.clearLayers()
+  green.clearLayers()
+  yellow.clearLayers()
+    for (i = 1; i < points.length-1; i++) {
+    if (points[i]== -1) {
+      continue;
+    }
+    g = 1
+    for (k = 1; k <= points.length-1-i; k++) {
+      if (points[i+k] != -1) {
+        g = k;
+        break;
+      }
+      g = -1;
+    }
+    console.log(g)
+    if (g == -1) {
+      break;
+      console.log("breaked")
+    }
+    request = $.ajax   ({
+     type:"GET",
+     url: "{{ url_for("build_way")}}",
+     data: {
+       id1 : points[i][0],
+       lat1 : points[i][1]["lat"],
+       lng1 : points[i][1]["lng"],
+       id2 : points[i+g][0],
+       lat2 : points[i+g][1]["lat"],
+       lng2 : points[i+g][1]["lng"] },
+
+     success: function(e){
+       var latlngs = [[49.818804132, 24.0591888517], [49.8187043873, 24.0590629556]]
+
+       latlngs = JSON.parse(e);
+      // console.log(latlngs[0][0] == latlngs[1][0], latlngs)
+
+       blue.addLayer( L.polyline(latlngs[2][0], {color: 'rgb(0,0,255)', weight:5}));
+       yellow.addLayer( L.polyline(latlngs[1][0], {color: 'rgb(255,255,0)', weight:5}));
+       green.addLayer(L.polyline(latlngs[0][0], {color: 'rgb(0,255,0)', weight:5}));
+       //$("#text-noti").html(text_header[3]);
+       // zoom the map to the polyline
+     //  map.fitBounds(polyline.getBounds());
+   },
+   error: function (xhr, ajaxOptions, thrownError) {
+        alert(xhr.status);
+        alert(thrownError);
+      }
+   });
+
+}
+
+}
 layer.addTo(map);
 
 map.setView([49.8193738,24.0298474], 20);
