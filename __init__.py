@@ -21,9 +21,9 @@ def break_line(lat1, lng1, get_id):
         b = part[1] - a*part[0]
         bh = lat1 + 1/a * lng1
         x = (bh-b)/(a+1/a)
-        #if max([x,part[0],last_part[0]]) == x or  min([x,part[0],last_part[0]]) == x:
-        #    last_part = part
-        #    continue
+        if max([x,part[0],last_part[0]]) == x or  min([x,part[0],last_part[0]]) == x:
+            last_part = part
+            continue
         d = abs(-a*lng1 + lat1 - b)/math.sqrt(a**2 + 1)
         if min_d[0] > d:
             min_d = [d, part, last_part]

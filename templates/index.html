@@ -48,7 +48,17 @@
   </main>
 </div>
 
-
+<dialog class="mdl-dialog">
+  <h4 class="mdl-dialog__title">При виконанні запиту виникла помилка</h4>
+  <div class="mdl-dialog__content">
+    <p>
+      Спробуйте змінити точки маршруту. Можливо ви обрали точку поза Львовом?
+    </p>
+  </div>
+  <div class="mdl-dialog__actions">
+    <button type="button" class="mdl-button close">Добре</button>
+  </div>
+</dialog>
 <!-- leaflet -->
 <script src="https://unpkg.com/leaflet@1.0.1/dist/leaflet.js"></script>
 <!-- Main tangram library -->
@@ -176,8 +186,11 @@ function genWay() {
      //  map.fitBounds(polyline.getBounds());
    },
    error: function (xhr, ajaxOptions, thrownError) {
-        alert(xhr.status);
-        alert(thrownError);
+     var dialog = document.querySelector('dialog');
+  dialog.showModal();
+dialog.querySelector('.close').addEventListener('click', function() {
+  dialog.close();
+});
       }
    });
 
