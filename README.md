@@ -19,7 +19,7 @@ We downloaded a database of crimes which includes:
 On each of the streets in Lviv<br />
 After that we calculated the sum of all this crimes on particular street<br /> 
 
-<h3>What routes do we offer?</h3>
+<h3>What routes do we offer?</h3><br />
 * <b>fastest</b> route
 * <b>safest route v1</b> - we calculate the "score"(level of danger) on the route
 as the sum of all the crimes on the streets that you've covered
