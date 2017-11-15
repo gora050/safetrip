@@ -2,7 +2,8 @@
 
 Web platform that will help you to find not only the <b>fastest</b> but the <b>safest</b> route on the map in <b>Lviv</b><br />
 
-<h3>How does it <b>work</b>?</h3>
+<h3>How does it work?</h3>
+
 * check the departure and destination points
 * click "BUILD A ROUTE" button [example](examples/overall.jpg)
 
@@ -10,8 +11,9 @@ Web platform that will help you to find not only the <b>fastest</b> but the <b>s
 It is a demo version, so you can get unwarranted errors. <br />
 Just try to delete all the points and try again <br />
 
-<h3>How do we <b>measure crime level</b> on the streets?<br /></h3>
-We downloaded a database of crimes which includes:
+<h3>How do we measure crime level on the streets?</h3>
+
+We downloaded a database of crimes which includes:<br />
 * thefts
 * frauds
 * lootings
@@ -19,8 +21,9 @@ We downloaded a database of crimes which includes:
 On each of the streets in Lviv<br />
 After that we calculated the sum of all this crimes on particular street<br /> 
 
-<h3>What routes do we offer?</h3><br />
-* <b>fastest</b> route
+<h3>What routes do we offer?</h3>
+
+* <b>fastest route</b>
 * <b>safest route v1</b> - we calculate the "score"(level of danger) on the route
 as the sum of all the crimes on the streets that you've covered
 * <b>safest route v2</b> - we calculate the "score"(level of danger) on the route
