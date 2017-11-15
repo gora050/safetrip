@@ -66,20 +66,20 @@ def build_way():
     print(lst2)
     print("_________________________")
     lst1 = break_line(lat1, lng1, get_id)
-    #print("\n\n",lst1,"\n\n",lst2,"\n\n")
+    print("\n\nLST1",lst1,"\n\nLST2",lst2,"\n\n")
     try:
         city.city[(lat1,lng1)].append((my_reversed(lst1[0]),  geocalc(lat1,lng1,lst1[0][0],lst1[0][1])/2 ,request.args["id1"]))
         city.city[(lat1,lng1)].append((my_reversed(lst1[2]), geocalc(lat1,lng1,lst1[2][0],lst1[2][1])/2,request.args["id1"]))
     except:
         city.city[(lat1,lng1)] = [(my_reversed(lst1[0]),  geocalc(lat1,lng1,lst1[0][0],lst1[0][1])/2 ,request.args["id1"]),
-                                  (my_reversed(lst1[2]), geocalc(lat1,lng1,lst1[2][0],lst1[2][1])/2,request.args["id1"])]
+                                  (my_reversed(lst1[1]), geocalc(lat1,lng1,lst1[2][0],lst1[2][1])/2,request.args["id1"])]
 
     try:
         city.city[(lat2,lng2)].append((my_reversed(lst2[0]), geocalc(lat2,lng2,lst2[0][0],lst2[0][1])/2 , request.args["id2"]))
         city.city[(lat2,lng2)].append((my_reversed(lst2[2]), geocalc(lat2,lng2,lst2[2][0],lst2[2][1])/2 , request.args["id2"]))
     except:
         city.city[(lat2,lng2)] = [(my_reversed(lst2[0]), geocalc(lat2,lng2,lst2[0][0],lst2[0][1])/2 , request.args["id2"]),
-                                  (my_reversed(lst2[2]), geocalc(lat2,lng2,lst2[2][0],lst2[2][1])/2 , request.args["id2"])]
+                                  (my_reversed(lst2[1]), geocalc(lat2,lng2,lst2[2][0],lst2[2][1])/2 , request.args["id2"])]
 
     city.city[tuple(my_reversed(lst1[0]))].append((tuple(my_reversed(lst1[1])), geocalc(lat1,lng1,lst1[0][0],lst1[0][1])/2 , request.args["id1"]))
     city.city[tuple(my_reversed(lst1[2]))].append((tuple(my_reversed(lst1[1])), geocalc(lat1,lng1,lst1[2][0],lst1[2][1])/2 , request.args["id1"]))

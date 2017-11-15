@@ -33,8 +33,8 @@
     <nav class="mdl-navigation">
       <ol>
       </ol>
-      <button id="gen_trip" onclick="genWay()" class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect">Прокласти маршрут</button>
-<span class="trip-info">Оберіть пункт відправлення і пункти призначення на мапі</span>
+      <button id="gen_trip" onclick="genWay()" class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect">Build a route</button>
+<span class="trip-info">Choose the departure and destionation points on the map</span>
     </nav>
   </div>
   <main class="mdl-layout__content">
@@ -49,14 +49,14 @@
 </div>
 
 <dialog class="mdl-dialog">
-  <h4 class="mdl-dialog__title">При виконанні запиту виникла помилка</h4>
+  <h4 class="mdl-dialog__title">Oops, an error occured while processing Your request</h4>
   <div class="mdl-dialog__content">
     <p>
-      Спробуйте змінити точки маршруту. Можливо ви обрали точку поза Львовом?
+	  Try to change some of the points on the route. Maybe you chose a point outside Lviv?
     </p>
   </div>
   <div class="mdl-dialog__actions">
-    <button type="button" class="mdl-button close">Добре</button>
+    <button type="button" class="mdl-button close">Ok</button>
   </div>
 </dialog>
 <!-- leaflet -->
@@ -80,14 +80,17 @@
 
 var crimed_roads = {{ crime }}
 var points = [0];
-text_header = ["Оберіть точку відправлення", "Оберіть точку прибуття", "Очікуйте, ми підбираємо найкращий маршрут для Вас", "Ваш найшвидший маршрут"]
+text_header = ["Choose a departure point",
+			   "Choose a destination point",
+			   "Please wait, we are choosing the best route for You",
+			   "Your fastest route"]
 
 function SetPoint(selection, npoints) {
     if (selection.feature) {
       data = selection.feature.properties
       console.log('Click!', data["id"],data["name"], selection);
       npoints[0]++
-      text = (data["name"] == undefined ? "Невідома" : data["name"]  )
+      text = (data["name"] == undefined ? "Unknown" : data["name"]  )
       pointListItem  = $('<li class="mdl-navigation__link" data-point-num="'+npoints[0]+'"><span>'+text+
         '</span><button class="mdl-button mdl-js-button mdl-button--icon"><i class="material-icons">close</i></button></li>');
       $(".mdl-navigation > ol").eq(0).append(pointListItem);
@@ -134,10 +137,10 @@ yellow = L.layerGroup([]).addTo(map);
 
 crimeLayer = L.layerGroup(crime_lay);
 var overlays = {
-  "Рівень кримінальності": crimeLayer,
-  "Найшвидший маршрут":yellow,
-  "Найбезпечніший маршрут v1": blue,
-  "Найбезпечніший маршрут v2": green
+  "Crime level": crimeLayer,
+  "Fastest route":yellow,
+  "Safest route v1": blue,
+  "Safest route v2": green
 };
 L.control.layers(baseLayers, overlays).addTo(map);
 function genWay() {
